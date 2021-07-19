@@ -9,3 +9,7 @@ textarea {
     padding: 10px;
     cursor: pointer;
 }
+
+.archive-button{
+    float: right;
+}

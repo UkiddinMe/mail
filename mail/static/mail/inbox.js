@@ -77,8 +77,7 @@ function load_mailbox(mailbox) {
         listedMail.style = "background-color: #dedede";
       }
       
-      document.querySelector('#emails-view').append(listedMail);
-      
+      // Determine what happens when the element is clicked on
       listedMail.addEventListener('click', () => {
         
         // Show single-email view and hide other views
@@ -92,13 +91,37 @@ function load_mailbox(mailbox) {
         .then(email => {
           
           document.querySelector('#single-email-view').innerHTML =
-          `<h3>${email.subject}</h3>
+          `<h3>${email.subject}</h3><button class='archive-button'></button>
           <br>${email.timestamp}
           <br><h6><b>Sender: </b>${email.sender}</h6>
           <br><h6><b>Recipients: </b>${email.recipients}</h6>
           <br>${email.body}
           <br>`;
-          
+
+          const archButton = document.querySelector('.archive-button');
+
+          if (mailbox === 'sent') {
+            archButton.style.display = ('none');
+          } else if (mailbox === 'inbox') {
+            archButton.style.display = ('block');
+            archButton.innerHTML =
+            "Archive Mail"
+          } else if (mailbox === 'archive') {
+            archButton.style.display = ('block');
+            archButton.innerHTML =
+            "Unarchive Mail"
+          }
+
+          archButton.addEventListener('click', function() {
+            fetch(`/emails/${email.id}`, {
+              method: 'PUT',
+              body: JSON.stringify({
+                archived: !email.archived
+              })
+            })
+            .then(load_mailbox('inbox'));
+          })
+
           // Mark as read
           if (email.read == false) {
             fetch(`/emails/${this.id}`, {
@@ -113,8 +136,9 @@ function load_mailbox(mailbox) {
         
       })
       
-
-
+      
+      // Finally add this element to the DOM
+      document.querySelector('#emails-view').append(listedMail);
 
     });
   
